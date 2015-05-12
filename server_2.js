@@ -30,10 +30,21 @@ app.use(bodyParser.urlencoded({
 * just to make thing simple
 */
 var user = {
-   username: 'jero',
+   user: 'jero',
    password: 'p'
 };
 
+// util functions
+function authenticate(req, res, next) {
+   var body = req.body;
+   if(!body.username || !body.password){
+      res.status(400).end('Must provide username and password');
+   }
+   if(body.username !== user.username || body.password !== user.password){
+      res.status(401).end('username or password incorrect');
+   }
+   next();
+}
 
 app.get('/random-user', function(req, res){
    var user = faker.helpers.userCard();
@@ -41,22 +52,10 @@ app.get('/random-user', function(req, res){
    res.json(user);
 });
 
-app.post('/login',authenticate, function(req, res) {
-   console.log('sisa');
+app.post('/login', authenticate, function (req, res) {
    //if the user is authenticated,we just send the user back
    res.send(user);
 });
-
-// util functions
-function authenticate(req, res, next) {
-   var body = req.body;
-   if(!body.username || !body.password){
-      res.status(400).end('Must provide username and password');
-   }else if(body.username !== user.username || body.password !== user.password){
-      res.status(401).end('username or password incorrect');
-   }
-   next();
-}
 
 app.listen(1989, function () {
    console.log('app listening on localhost:1989');

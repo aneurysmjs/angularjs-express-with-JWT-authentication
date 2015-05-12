@@ -8,8 +8,16 @@
 
    <section ng-controller="MainController as vm">
       <h1>Get random user</h1>
+
+      <form ng-submit="vm.login(vm.username, vm.password)">
+         <label>username: <input type="text" ng-model="vm.username" /></label><br/>
+         <label>password: <input type="password" ng-model="vm.password" /></label><br/>
+         <button type="submit">submit</button>
+      </form>
+      
       <button ng-click="vm.getRandomUser()">get</button>
       <pre ng-bind="vm.randomUser | json"></pre>
+      
    </section>
 
 <script src="bower_components/angular/angular.js"></script>
