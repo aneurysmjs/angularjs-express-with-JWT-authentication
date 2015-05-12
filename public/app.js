@@ -54,13 +54,21 @@
 
    });
 
-   app.factory('UserFactory', function UserFactory($http, API_URL){
+   app.factory('UserFactory', function UserFactory($http, API_URL, AuthTokenFactory){
       'use strict';
 
       function login(username, password) {
          return $http.post(API_URL + '/login', {
             username: username,
             password: password
+         }).then(function success(response) {
+            /*
+            * When we login, we want to save this token, so we'll add a then here.
+            * Here we'll take auth token factory and set token to the response.data.token,
+            */
+            AuthTokenFactory.setToken(response.data.token);
+            // and then we'll return the response for future items in the chain.
+            return response;
          });
       }
 
@@ -69,4 +77,68 @@
       };
 
    });
+
+   /*
+   * Let's go ahead and set up saving this to local storage.
+   * We're going to create a factory that will manage our token for us.
+   */
+   app.factory('AuthTokenFactory', function AuthTokenFactory($window) {
+      'use strict';
+
+      var store = $window.localStorage,
+          key = 'auth-token';
+      function getToken() {
+         return store.getItem(key);
+      }
+
+      function setToken(token) {
+         if(token){
+            store.setItem(key, token);
+         } else {
+            store.removeItem(key);
+         }
+      }
+
+      return {
+         getToken: getToken,
+         setToken: setToken
+      };
+   });
+   /*
+   * now we're going to use what in Angular is called an interceptor,
+   * and we're going to create that as a factory.
+   */
+   app.factory('AuthInterceptor', function AuthInterceptor(AuthTokenFactory) {
+      'use strict';
+      /*
+      * interceptors have a couple of cool things on them.
+      * You have the request, the request error response, and response error.
+      * Each one of them is doing different things to the HTTP config.
+      * The one that we care about is the 'request'.
+      *
+      */
+
+      //and then here we'll implement 'addToken'.
+      // It'll take the config, and it'll return the config.
+      function addToken(config) {
+         var token = AuthTokenFactory.getToken();
+
+         //  Now if there is a token, so if the user is authenticated.
+         if(token){
+            // then we're going to add this to a header on this config object,
+            config.headers = config.headers || {};
+            config.headers.Authorization = 'Bearer ' + token;
+         }
+
+         return config;
+      }
+
+      return {
+         //so we'll have 'request' and it will be 'addToken'.
+         request: addToken
+      };
+
+
+   });
+
 }());

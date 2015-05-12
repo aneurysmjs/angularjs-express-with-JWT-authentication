@@ -14,10 +14,13 @@
          <label>password: <input type="password" ng-model="vm.password" /></label><br/>
          <button type="submit">submit</button>
       </form>
-      
-      <button ng-click="vm.getRandomUser()">get</button>
-      <pre ng-bind="vm.randomUser | json"></pre>
-      
+
+      <div>
+         <h2>Welcome {{ vm.user.username }}</h2>
+         <button ng-click="vm.getRandomUser()">get</button>
+         <pre ng-bind="vm.randomUser | json"></pre>
+      </div>
+
    </section>
 
 <script src="bower_components/angular/angular.js"></script>

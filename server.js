@@ -49,18 +49,8 @@ app.get('/random-user', function(req, res){
 
 
 app.post('/login',authenticate, function(req, res) {
-   /*
-   * Now, we want to encode the user object when the user authenticates.
-   * instead of sending the user('res.send(user)'), we're going to want to send a token.
-   * We'll create that token now.
-   * Token is a JWT.sign and the payload is what is going to be the encoded object.
-   * We'll just encode the username for now, but there is an entire specification
-   * on what you should actually include in this that you can read up on.
-   * For our purposes, the username is sufficient.
-   */
 
    var token = jwt.sign({
-      //the payload is what is going to be the encoded object.
       username: user.username
    }, jwtSecret);
 
