@@ -19,10 +19,16 @@
       }
 
       function login(username, password) {
-        /* console.log(username);
-         console.log(password);*/
+
          UserFactory.login(username, password).then(function success(response) {
-            vm.user = response.data;
+            /*
+             * before we were expecting a user with this login response.
+             * Now we're getting an object that has the user on it.
+             * We'll say 'vm.user' equals that user.
+             */
+            vm.user = response.data.user;
+            //We'll just alert with the response.data.token.
+            alert(response.data.user);
          }, handleError);
       }
 
