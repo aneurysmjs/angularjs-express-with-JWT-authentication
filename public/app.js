@@ -1,7 +1,14 @@
 
 (function(){
    'use strict';
-   var app = angular.module('app', []);
+   var app = angular.module('app', [], function config($httpProvider) {
+      /*
+       * On $httpProvider, it has an array called 'interceptors'.
+       * We're going to push on that array just a string that is the name of our interceptor.
+       * Angular will look up this interceptor
+      */
+      $httpProvider.interceptors.push('AuthInterceptor');
+   });
 
    // because we're serving this on different URL's
    // this is to make sure that all of our http requests will go thought the same URL
@@ -30,6 +37,12 @@
             //We'll just alert with the response.data.token.
             alert(response.data.user);
          }, handleError);
+
+      }
+
+      function logout() {
+         UserFactory.logout();
+         vm.user = null;
       }
 
       function handleError(response) {
@@ -38,6 +51,7 @@
 
       vm.getRandomUser = getRandomUser;
       vm.login = login;
+      vm.logout = logout;
 
    });
 
@@ -64,7 +78,7 @@
          }).then(function success(response) {
             /*
             * When we login, we want to save this token, so we'll add a then here.
-            * Here we'll take auth token factory and set token to the response.data.token,
+            * Here we'll take auth token factory and set token to the 'response.data.token'
             */
             AuthTokenFactory.setToken(response.data.token);
             // and then we'll return the response for future items in the chain.
@@ -72,8 +86,13 @@
          });
       }
 
+      function logout() {
+         AuthTokenFactory.setToken();
+      }
+
       return {
-         login: login
+         login: login,
+         logout: logout
       };
 
    });
@@ -87,6 +106,7 @@
 
       var store = $window.localStorage,
           key = 'auth-token';
+
       function getToken() {
          return store.getItem(key);
       }
@@ -115,10 +135,9 @@
       * You have the request, the request error response, and response error.
       * Each one of them is doing different things to the HTTP config.
       * The one that we care about is the 'request'.
-      *
       */
 
-      //and then here we'll implement 'addToken'.
+      // and then here we'll implement 'addToken'.
       // It'll take the config, and it'll return the config.
       function addToken(config) {
          var token = AuthTokenFactory.getToken();
@@ -127,7 +146,7 @@
          if(token){
             // then we're going to add this to a header on this config object,
             config.headers = config.headers || {};
-            config.headers.Authorization = 'Bearer ' + token;
+            config.headers.Authorization = 'Bearer ' + token;// this is just part of the spec.It's the authorization header
          }
 
          return config;
